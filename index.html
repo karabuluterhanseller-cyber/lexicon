@@ -499,11 +499,9 @@
         setReadingScore(null);
         
         setTimeout(() => {
-          const allLevelList = READING_PASSAGES_POOL[readingLevel] || READING_PASSAGES_POOL["Intermediate"];
-          const levelList = allLevelList.filter(p => p.lang === targetLang);
-          if (!levelList || levelList.length === 0) { setLoading(false); return; }
+          const levelList = READING_PASSAGES_POOL[readingLevel] || READING_PASSAGES_POOL["Intermediate"];
           
-          // Son gösterilen hariç rastgele seç
+          // Rastgele bir indeks seç, eğer liste 1'den büyükse bir öncekiyle aynı olmasın
           let nextIdx = Math.floor(Math.random() * levelList.length);
           if (levelList.length > 1 && nextIdx === lastPassageIdx) {
             nextIdx = (nextIdx + 1) % levelList.length;
@@ -523,11 +521,9 @@
         const clean = rawWord.toLowerCase().replace(/[^a-zåäöéèàùа-яА-Я]/g, "");
         if (!clean || clean.length < 2) return;
 
-        // Önce preset'te ara
         const preset = (CORE_PRESETS[targetLang] || []).find(w => w.word === clean);
         if (preset) { setHoveredWordInfo(preset); return; }
 
-        // Yoksa Claude API'den al
         setHoveredWordInfo({ word: clean, meaning: "Yükleniyor...", translation: "...", ipa: "", pos: "", etymology: "", synonyms: [] });
 
         try {
@@ -539,7 +535,7 @@
             body: JSON.stringify({
               model: "claude-sonnet-4-20250514",
               max_tokens: 400,
-              messages: [{ role: "user", content: "For the " + langName + " word \"" + clean + "\", give: 1) concise definition, 2) part of speech, 3) IPA pronunciation, 4) Turkish translation (just the word), 5) brief etymology (1 sentence). Respond ONLY as raw JSON: {\"word\":\"\",\"meaning\":\"\",\"pos\":\"\",\"ipa\":\"\",\"translation\":\"\",\"etymology\":\"\"}" }]
+              messages: [{ role: "user", content: "For the " + langName + " word \"" + clean + "\", give: 1) concise definition, 2) part of speech, 3) IPA pronunciation, 4) Turkish translation (just the word or short phrase), 5) brief etymology (1 sentence). Respond ONLY as raw JSON no backticks: {\"word\":\"\",\"meaning\":\"\",\"pos\":\"\",\"ipa\":\"\",\"translation\":\"\",\"etymology\":\"\"}" }]
             })
           });
           const data = await res.json();
@@ -550,8 +546,7 @@
             setHoveredWordInfo({ ...parsed, synonyms: [] });
           }
         } catch(e) {
-          console.error("Word lookup error:", e);
-          setHoveredWordInfo({ word: clean, meaning: "Tanım yüklenemedi.", translation: "-", ipa: "", pos: "", etymology: "", synonyms: [] });
+          setHoveredWordInfo({ word: clean, meaning: "Tanım yüklenemedi.", translation: getDynamicTranslation(clean), ipa: "", pos: "", etymology: "", synonyms: [] });
         }
       };
 
