@@ -2,16 +2,15 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>A2 Master - İleri Seviye Okuma</title>
+  <title>A2 Okuma Sistemi</title>
   <style>
-    body { background: #0b1120; color: #f1f5f9; font-family: sans-serif; padding: 20px; }
+    body { background: #0f172a; color: #f1f5f9; font-family: sans-serif; padding: 20px; }
     .container { max-width: 700px; margin: 0 auto; }
     .card { background: #1e293b; padding: 25px; border-radius: 12px; }
-    .passage { line-height: 1.8; font-size: 0.95rem; text-align: justify; }
-    .word { cursor: pointer; border-bottom: 1px dashed #38bdf8; color: #cbd5e1; }
-    .word:hover { color: #38bdf8; background: #334155; }
-    .btn { background: #f472b6; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-bottom: 20px; }
-    .footer-info { margin-top: 20px; padding: 15px; background: #0f172a; border-left: 4px solid #f472b6; }
+    .passage { line-height: 1.8; font-size: 0.95rem; }
+    .word { cursor: pointer; color: #38bdf8; border-bottom: 1px dashed #38bdf8; }
+    .btn { background: #f472b6; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; margin-bottom: 20px; }
+    .info { margin-top: 20px; padding: 15px; background: #000; border-left: 4px solid #f472b6; }
   </style>
 </head>
 <body>
@@ -25,53 +24,54 @@
 <script type="text/babel">
   const { useState } = React;
 
-  // Gerçek zamanlı çeviri simülasyonu
-  const getTranslation = (w) => {
-    const dict = {
-      "le": "o", "est": "dir", "une": "bir", "voyage": "seyahat", "montagne": "dağ",
-      "nature": "doğa", "tranquille": "sakin", "fleur": "çiçek", "soleil": "güneş",
-      "travaille": "çalışır", "grand": "büyük", "petit": "küçük", "école": "okul",
-      "livre": "kitap", "manger": "yemek", "ciel": "gökyüzü", "oiseau": "kuş"
-    };
-    return dict[w.toLowerCase().replace(/[.,]/g, "")] || "Sözlükte henüz yok (eklenebilir)";
+  // Genişletilmiş Sözlük
+  const dictionary = {
+    "le": "o", "la": "o", "les": "onlar", "est": "dir", "voyage": "seyahat", "montagne": "dağ",
+    "nature": "doğa", "tranquille": "sakin", "fleur": "çiçek", "soleil": "güneş",
+    "travaille": "çalışır", "grand": "büyük", "petit": "küçük", "manger": "yemek",
+    "ciel": "gökyüzü", "oiseau": "kuş", "maison": "ev", "chat": "kedi", "chien": "köpek",
+    "beau": "güzel", "livre": "kitap", "ecole": "okul", "ami": "arkadaş", "très": "çok"
   };
 
   function App() {
-    const [content, setContent] = useState({ title: "Başlat", paragraphs: ["Butona basarak metin üret."] });
-    const [selected, setSelected] = useState(null);
+    const [text, setText] = useState("Metin üretmek için butona basınız.");
+    const [selectedWord, setSelectedWord] = useState({ w: "", t: "" });
 
     const generate = () => {
-      const topics = ["Voyage", "Nature", "Education", "Gastronomie"];
-      const topic = topics[Math.floor(Math.random() * topics.length)];
-      
-      // 200+ kelimelik özgün metin bloğu (Daha uzun ve farklı varyasyonlar)
-      let paragraphs = [];
-      for(let p=0; p<4; p++) {
-        let sent = "";
-        for(let s=0; s<15; s++) {
-          sent += `${["Thomas", "Marie", "Pierre"][Math.floor(Math.random()*3)]} ${["travaille", "mange", "observe"][Math.floor(Math.random()*3)]} ${["le", "une", "le grand"][Math.floor(Math.random()*3)]} ${["voyage", "montagne", "fleur", "soleil"][Math.floor(Math.random()*4)]}. `;
-        }
-        paragraphs.push(sent);
+      const words = Object.keys(dictionary);
+      let newPassage = "";
+      // 200+ kelime üret
+      for(let i=0; i<250; i++) {
+        newPassage += words[Math.floor(Math.random() * words.length)] + " ";
       }
-      setContent({ title: `Topic: ${topic} #${Math.floor(Math.random()*9999)}`, paragraphs });
+      setText(newPassage);
     };
 
     return (
       <div className="container">
-        <button className="btn" onClick={generate}>YENİ ÖZGÜN PASAJ ÜRET (200+ KELİME)</button>
+        <button className="btn" onClick={generate}>YENİ PASAJ ÜRET (200+ Kelime)</button>
         <div className="card">
-          <h2 style={{color: '#f472b6'}}>{content.title}</h2>
           <div className="passage">
-            {content.paragraphs.map((p, idx) => (
-              <p key={idx}>{p.split(" ").map((w, i) => (
-                <span key={i} className="word" onClick={() => setSelected({w, t: getTranslation(w)})}>
+            {text.split(" ").map((w, i) => {
+              const clean = w.toLowerCase();
+              return (
+                <span 
+                  key={i} 
+                  className="word" 
+                  onClick={() => setSelectedWord({ w, t: dictionary[clean] || "Sözlükte tanımlı değil" })}
+                >
                   {w}{" "}
                 </span>
-              ))}</p>
-            ))}
+              );
+            })}
           </div>
         </div>
-        {selected && <div className="footer-info"><strong>{selected.w}</strong> = {selected.t}</div>}
+        
+        {selectedWord.w && (
+          <div className="info" key={selectedWord.w + Math.random()}>
+            <strong>{selectedWord.w}</strong>: {selectedWord.t}
+          </div>
+        )}
       </div>
     );
   }
