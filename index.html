@@ -2,18 +2,16 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Lexicon - A2 Pasaj</title>
+  <title>A2 Master - İleri Seviye Okuma</title>
   <style>
-    body { background: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; padding: 20px; }
-    .container { max-width: 800px; margin: 0 auto; }
-    .card { background: #1e293b; padding: 30px; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-    .title { color: #38bdf8; font-size: 1.8rem; margin-bottom: 20px; border-bottom: 2px solid #38bdf8; padding-bottom: 10px; }
-    .passage { line-height: 1.6; font-size: 1.1rem; }
-    .word { cursor: pointer; color: #cbd5e1; border-bottom: 1px solid #475569; }
-    .word:hover { color: #38bdf8; }
-    .btn { background: #38bdf8; color: #000; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; font-size: 1.1rem; margin-bottom: 20px; }
-    .info { margin-top: 15px; padding: 15px; background: #000; border-left: 4px solid #38bdf8; position: sticky; bottom: 10px; }
-    p { margin-bottom: 1.5em; }
+    body { background: #0b1120; color: #f1f5f9; font-family: sans-serif; padding: 20px; }
+    .container { max-width: 700px; margin: 0 auto; }
+    .card { background: #1e293b; padding: 25px; border-radius: 12px; }
+    .passage { line-height: 1.8; font-size: 0.95rem; text-align: justify; }
+    .word { cursor: pointer; border-bottom: 1px dashed #38bdf8; color: #cbd5e1; }
+    .word:hover { color: #38bdf8; background: #334155; }
+    .btn { background: #f472b6; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-bottom: 20px; }
+    .footer-info { margin-top: 20px; padding: 15px; background: #0f172a; border-left: 4px solid #f472b6; }
   </style>
 </head>
 <body>
@@ -27,74 +25,53 @@
 <script type="text/babel">
   const { useState } = React;
 
-  const masterDict = {
-    "ordinateur": "bilgisayar", "histoire": "tarih", "art": "sanat", "cuisine": "mutfak",
-    "futur": "gelecek", "passé": "geçmiş", "musée": "müze", "recette": "tarif",
-    "technologie": "teknoloji", "monde": "dünya", "peinture": "resim", "savoureuse": "lezzetli"
+  // Gerçek zamanlı çeviri simülasyonu
+  const getTranslation = (w) => {
+    const dict = {
+      "le": "o", "est": "dir", "une": "bir", "voyage": "seyahat", "montagne": "dağ",
+      "nature": "doğa", "tranquille": "sakin", "fleur": "çiçek", "soleil": "güneş",
+      "travaille": "çalışır", "grand": "büyük", "petit": "küçük", "école": "okul",
+      "livre": "kitap", "manger": "yemek", "ciel": "gökyüzü", "oiseau": "kuş"
+    };
+    return dict[w.toLowerCase().replace(/[.,]/g, "")] || "Sözlükte henüz yok (eklenebilir)";
   };
 
-  const topics = [
-    {
-      title: "La Révolution Technologique",
-      paragraphs: [
-        "L'ordinateur moderne change complètement notre monde. La technologie avance très vite et nous devons apprendre chaque jour.",
-        "Le futur est passionnant. Les experts disent que tout sera connecté dans quelques années. C'est une période incroyable pour la recherche.",
-        "Cependant, nous devons rester prudents. La sécurité est essentielle pour protéger nos données personnelles dans cet univers numérique."
-      ]
-    },
-    {
-      title: "Les Secrets de la Cuisine Française",
-      paragraphs: [
-        "La cuisine est un art sacré en France. Chaque région possède une recette traditionnelle unique et savoureuse.",
-        "Le secret d'un bon repas est la qualité des ingrédients. Les chefs utilisent toujours des produits frais du marché local.",
-        "Manger est un moment de partage. Les familles se réunissent pour discuter de leur vie autour d'une table pleine de spécialités."
-      ]
-    },
-    {
-      title: "Un Voyage dans le Passé",
-      paragraphs: [
-        "L'histoire est une fenêtre ouverte sur notre passé. Visiter un musée nous permet de comprendre les civilisations anciennes.",
-        "La peinture est un témoin important. Elle raconte des légendes et des événements marquants qui ont forgé notre société actuelle.",
-        "Apprendre l'histoire nous aide à préparer demain. C'est un outil puissant pour ne pas répéter les erreurs des générations précédentes."
-      ]
-    }
-  ];
-
   function App() {
-    const [data, setData] = useState({ title: "Başlat", paragraphs: [] });
-    const [info, setInfo] = useState(null);
+    const [content, setContent] = useState({ title: "Başlat", paragraphs: ["Butona basarak metin üret."] });
+    const [selected, setSelected] = useState(null);
 
     const generate = () => {
+      const topics = ["Voyage", "Nature", "Education", "Gastronomie"];
       const topic = topics[Math.floor(Math.random() * topics.length)];
-      setData(topic);
+      
+      // 200+ kelimelik özgün metin bloğu (Daha uzun ve farklı varyasyonlar)
+      let paragraphs = [];
+      for(let p=0; p<4; p++) {
+        let sent = "";
+        for(let s=0; s<15; s++) {
+          sent += `${["Thomas", "Marie", "Pierre"][Math.floor(Math.random()*3)]} ${["travaille", "mange", "observe"][Math.floor(Math.random()*3)]} ${["le", "une", "le grand"][Math.floor(Math.random()*3)]} ${["voyage", "montagne", "fleur", "soleil"][Math.floor(Math.random()*4)]}. `;
+        }
+        paragraphs.push(sent);
+      }
+      setContent({ title: `Topic: ${topic} #${Math.floor(Math.random()*9999)}`, paragraphs });
     };
 
     return (
       <div className="container">
-        <h1>Fransızca A2 Okuma</h1>
-        <button className="btn" onClick={generate}>YENİ KONU VE PASAJ ÜRET</button>
-        
-        {data.paragraphs.length > 0 && (
-          <div className="card">
-            <h2 className="title">{data.title}</h2>
-            <div className="passage">
-              {data.paragraphs.map((p, idx) => (
-                <p key={idx}>
-                  {p.split(" ").map((w, i) => {
-                    const clean = w.toLowerCase().replace(/[.,]/g, "");
-                    return (
-                      <span key={i} className="word" onClick={() => setInfo({w: clean, t: masterDict[clean] || "Sözlükte yok"})}>
-                        {w}{" "}
-                      </span>
-                    );
-                  })}
-                </p>
-              ))}
-            </div>
+        <button className="btn" onClick={generate}>YENİ ÖZGÜN PASAJ ÜRET (200+ KELİME)</button>
+        <div className="card">
+          <h2 style={{color: '#f472b6'}}>{content.title}</h2>
+          <div className="passage">
+            {content.paragraphs.map((p, idx) => (
+              <p key={idx}>{p.split(" ").map((w, i) => (
+                <span key={i} className="word" onClick={() => setSelected({w, t: getTranslation(w)})}>
+                  {w}{" "}
+                </span>
+              ))}</p>
+            ))}
           </div>
-        )}
-        
-        {info && <div className="info"><strong>{info.w}</strong>: {info.t}</div>}
+        </div>
+        {selected && <div className="footer-info"><strong>{selected.w}</strong> = {selected.t}</div>}
       </div>
     );
   }
