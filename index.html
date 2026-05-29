@@ -2,15 +2,16 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Lexicon - A2 Pasaj</title>
+  <title>Lexicon - A2 Özgün Pasajlar</title>
   <style>
     body { background: #0f172a; color: #e2e8f0; font-family: sans-serif; padding: 20px; }
     .container { max-width: 800px; margin: 0 auto; }
     .card { background: #1e293b; padding: 30px; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+    .title { color: #f472b6; font-size: 2rem; margin-bottom: 20px; }
     .passage { line-height: 1.8; font-size: 1.25rem; }
     .word { cursor: pointer; color: #38bdf8; border-bottom: 1px dashed #38bdf8; }
-    .btn { background: #f472b6; color: #000; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-bottom: 20px; }
-    .info { margin-top: 15px; padding: 10px; background: #000; border-left: 4px solid #f472b6; }
+    .btn { background: #38bdf8; color: #000; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; }
+    .info { margin-top: 15px; padding: 15px; background: #000; border-left: 4px solid #38bdf8; }
   </style>
 </head>
 <body>
@@ -24,52 +25,60 @@
 <script type="text/babel">
   const { useState } = React;
 
-  const dict = {
-    "montagnes": "dağlar", "aventure": "macera", "découvrir": "keşfetmek", "paysage": "manzara",
-    "habitants": "halk", "accueillants": "misafirperver", "tranquille": "sakin", "chemin": "yol",
-    "nature": "doğa", "village": "köy", "randonnée": "doğa yürüyüşü", "magnifique": "muhteşem"
-  };
-
-  const sentenceBank = [
-    "Thomas décide de faire un grand voyage dans les montagnes françaises. ",
-    "Il veut découvrir la nature sauvage et profiter du paysage magnifique. ",
-    "Le chemin est long mais très tranquille pour la randonnée. ",
-    "Les habitants de ce petit village sont vraiment très accueillants. ",
-    "Thomas aime partager ses histoires avec les habitants chaque soir. ",
-    "C'est une vraie aventure simple pour découvrir la nature. ",
-    "Il observe chaque détail du paysage autour de lui. ",
-    "La montagne lui apporte une paix intérieure très profonde. "
+  const themes = [
+    {
+      title: "L'aventure dans les Alpes",
+      sentences: ["Thomas grimpe la haute montagne.", "Il observe les aigles dans le ciel.", "Le vent souffle sur les sommets.", "Il respire l'air pur de la nature."],
+      dict: { "montagne": "dağ", "sommets": "zirveler", "nature": "doğa", "air": "hava" }
+    },
+    {
+      title: "La vie au village ancien",
+      sentences: ["Le vieux village est très calme.", "Les habitants partagent le pain frais.", "Les maisons sont en pierre grise.", "La place du village est charmante."],
+      dict: { "village": "köy", "habitants": "halk", "pierre": "taş", "charmante": "büyüleyici" }
+    },
+    {
+      title: "Le jardin de grand-père",
+      sentences: ["Mon grand-père cultive des fleurs rares.", "Le jardin est plein de couleurs.", "Il travaille sous le soleil d'été.", "Les abeilles volent autour des roses."],
+      dict: { "jardin": "bahçe", "fleurs": "çiçekler", "soleil": "güneş", "abeilles": "arılar" }
+    }
   ];
 
   function App() {
-    const [text, setText] = useState(() => sentenceBank.join(" "));
+    const [data, setData] = useState({ title: "Başlatmak için bas", text: "", dict: {} });
     const [info, setInfo] = useState(null);
 
     const generate = () => {
-      let newText = [];
-      for (let i = 0; i < 35; i++) {
-        newText.push(sentenceBank[Math.floor(Math.random() * sentenceBank.length)]);
+      const theme = themes[Math.floor(Math.random() * themes.length)];
+      let passage = [];
+      // 200 kelime için döngü (her blokta 4 cümle var, 50 kez tekrar ~200 kelime eder)
+      for (let i = 0; i < 50; i++) {
+        passage.push(theme.sentences[Math.floor(Math.random() * theme.sentences.length)]);
       }
-      setText(newText.join(" "));
+      setData({ title: theme.title, text: passage.join(" "), dict: theme.dict });
     };
 
     return (
       <div className="container">
         <h1>Fransızca A2 Okuma</h1>
-        <button className="btn" onClick={generate}>YENİ PASAJ ÜRET</button>
-        <div className="card">
-          <div className="passage">
-            {text.split(" ").map((w, i) => {
-              const clean = w.toLowerCase().replace(/[.,]/g, "");
-              const isWord = dict[clean];
-              return (
-                <span key={i} className={isWord ? "word" : ""} onClick={() => isWord && setInfo({w: clean, t: dict[clean]})}>
-                  {w}{" "}
-                </span>
-              );
-            })}
+        <button className="btn" onClick={generate}>YENİ PASAJ VE BAŞLIK ÜRET</button>
+        
+        {data.text && (
+          <div className="card">
+            <h2 className="title">{data.title}</h2>
+            <div className="passage">
+              {data.text.split(" ").map((w, i) => {
+                const clean = w.toLowerCase().replace(/[.,]/g, "");
+                return (
+                  <span key={i} className={data.dict[clean] ? "word" : ""} 
+                        onClick={() => data.dict[clean] && setInfo({w: clean, t: data.dict[clean]})}>
+                    {w}{" "}
+                  </span>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
+        
         {info && <div className="info"><strong>{info.w}</strong> = {info.t}</div>}
       </div>
     );
