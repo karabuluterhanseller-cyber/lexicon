@@ -22,7 +22,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
 
 <script type="text/babel">
-  const { useState, useEffect, useCallback } = React;
+  const { useState, useEffect } = React;
 
   const dict = {
     "montagnes": "dağlar", "aventure": "macera", "découvrir": "keşfetmek", "paysage": "manzara",
@@ -31,10 +31,11 @@
   };
 
   function App() {
-    const [text, setText] = useState("");
+    // State'i obje olarak tutuyoruz ki "key" değiştiğinde React kesinlikle yeniden çizsin
+    const [passageData, setPassageData] = useState({ id: 0, text: "" });
     const [wordInfo, setWordInfo] = useState(null);
 
-    const generateLongPassage = useCallback(() => {
+    const generateLongPassage = () => {
       const sentenceBank = [
         "Thomas décide de faire un grand voyage dans les montagnes françaises. ",
         "Il veut découvrir la nature sauvage et profiter du paysage magnifique. ",
@@ -46,18 +47,21 @@
         "La montagne lui apporte une paix intérieure très profonde. "
       ];
       
-      // 30 cümle seçerek 200+ kelimelik metin oluşturuyoruz
-      let newPassage = [];
-      for (let i = 0; i < 30; i++) {
-        newPassage.push(sentenceBank[Math.floor(Math.random() * sentenceBank.length)]);
+      let newPassage = "";
+      // 35 cümle ile 200+ kelimeyi garanti altına alıyoruz
+      for (let i = 0; i < 35; i++) {
+        newPassage += sentenceBank[Math.floor(Math.random() * sentenceBank.length)];
       }
-      setText(newPassage.join(" "));
-    }, []);
+      
+      setPassageData({
+        id: Date.now(), // Her seferinde eşsiz bir ID
+        text: newPassage
+      });
+    };
 
-    // Uygulama ilk açıldığında otomatik üret
     useEffect(() => {
       generateLongPassage();
-    }, [generateLongPassage]);
+    }, []);
 
     const handleWordClick = (word) => {
       const clean = word.toLowerCase().replace(/[.,]/g, "");
@@ -71,8 +75,8 @@
         <h1>Fransızca A2 Okuma Parçası</h1>
         <button className="btn" onClick={generateLongPassage}>📖 Yeni Pasaj Üret (200+ Kelime)</button>
         
-        <div className="card passage">
-          {text.split(" ").map((w, i) => (
+        <div className="card passage" key={passageData.id}>
+          {passageData.text.split(" ").map((w, i) => (
             <span key={i} className={dict[w.toLowerCase().replace(/[.,]/g, "")] ? "clickable" : ""}
                   onClick={() => handleWordClick(w)}>
               {w}{" "}
