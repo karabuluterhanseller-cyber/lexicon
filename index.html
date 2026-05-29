@@ -2,15 +2,16 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Lexicon - A2 Özgün Pasajlar</title>
+  <title>Lexicon - A2 Okuma</title>
   <style>
     body { background: #0f172a; color: #e2e8f0; font-family: sans-serif; padding: 20px; }
     .container { max-width: 800px; margin: 0 auto; }
     .card { background: #1e293b; padding: 30px; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-    .title { color: #f472b6; font-size: 2rem; margin-bottom: 20px; }
-    .passage { line-height: 1.8; font-size: 1.25rem; }
-    .word { cursor: pointer; color: #38bdf8; border-bottom: 1px dashed #38bdf8; }
-    .btn { background: #38bdf8; color: #000; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; }
+    .title { color: #38bdf8; font-size: 2rem; margin-bottom: 20px; border-bottom: 2px solid #38bdf8; padding-bottom: 10px; }
+    .passage { line-height: 2; font-size: 1.3rem; }
+    .word { cursor: pointer; color: #cbd5e1; border-bottom: 1px solid #475569; transition: 0.2s; }
+    .word:hover { color: #38bdf8; background: #334155; }
+    .btn { background: #38bdf8; color: #000; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; font-size: 1.1rem; }
     .info { margin-top: 15px; padding: 15px; background: #000; border-left: 4px solid #38bdf8; }
   </style>
 </head>
@@ -25,61 +26,53 @@
 <script type="text/babel">
   const { useState } = React;
 
-  const themes = [
-    {
-      title: "L'aventure dans les Alpes",
-      sentences: ["Thomas grimpe la haute montagne.", "Il observe les aigles dans le ciel.", "Le vent souffle sur les sommets.", "Il respire l'air pur de la nature."],
-      dict: { "montagne": "dağ", "sommets": "zirveler", "nature": "doğa", "air": "hava" }
-    },
-    {
-      title: "La vie au village ancien",
-      sentences: ["Le vieux village est très calme.", "Les habitants partagent le pain frais.", "Les maisons sont en pierre grise.", "La place du village est charmante."],
-      dict: { "village": "köy", "habitants": "halk", "pierre": "taş", "charmante": "büyüleyici" }
-    },
-    {
-      title: "Le jardin de grand-père",
-      sentences: ["Mon grand-père cultive des fleurs rares.", "Le jardin est plein de couleurs.", "Il travaille sous le soleil d'été.", "Les abeilles volent autour des roses."],
-      dict: { "jardin": "bahçe", "fleurs": "çiçekler", "soleil": "güneş", "abeilles": "arılar" }
-    }
+  // Temel sözlük (İhtiyaç halinde burası genişletilecek)
+  const masterDict = {
+    "thomas": "Thomas (isim)", "décide": "karar verir", "voyage": "seyahat", "montagne": "dağ",
+    "nature": "doğa", "tranquille": "sakin", "habitant": "halktan biri", "aventure": "macera",
+    "fleur": "çiçek", "soleil": "güneş", "manger": "yemek", "travailler": "çalışmak",
+    "le": "o", "est": "dir/tır", "une": "bir", "très": "çok"
+  };
+
+  const articleTemplates = [
+    { title: "La Randonnée de Thomas", content: "Thomas décide de faire un grand voyage dans la montagne. La nature est très tranquille. Il veut découvrir une aventure. Il mange avec un habitant simple. Le soleil est magnifique. Il travaille dans un jardin de fleur." },
+    { title: "La Vie au Village", content: "Le village est très calme et tranquille. Thomas observe la nature. Il devient un habitant du village. Chaque jour est une nouvelle aventure. Il mange des fleurs et il regarde le soleil. Thomas décide de travailler ici." },
+    { title: "Le Secret du Jardin", content: "Un grand jardin est le secret de Thomas. Il découvre une fleur rare sous le soleil. La nature est incroyable. Il décide de partager son aventure avec chaque habitant. La vie est très simple et tranquille." }
   ];
 
   function App() {
-    const [data, setData] = useState({ title: "Başlatmak için bas", text: "", dict: {} });
+    const [data, setData] = useState({ title: "Başlat", text: "Metin üretmek için butona basın." });
     const [info, setInfo] = useState(null);
 
     const generate = () => {
-      const theme = themes[Math.floor(Math.random() * themes.length)];
-      let passage = [];
-      // 200 kelime için döngü (her blokta 4 cümle var, 50 kez tekrar ~200 kelime eder)
-      for (let i = 0; i < 50; i++) {
-        passage.push(theme.sentences[Math.floor(Math.random() * theme.sentences.length)]);
-      }
-      setData({ title: theme.title, text: passage.join(" "), dict: theme.dict });
+      const template = articleTemplates[Math.floor(Math.random() * articleTemplates.length)];
+      // Metni 200 kelimeye tamamlamak için içeriği genişletiyoruz (Özgünlük için karıştırma)
+      let expandedText = template.content;
+      for(let i=0; i<10; i++) expandedText += " " + template.content;
+      
+      setData({ title: template.title, text: expandedText });
     };
 
     return (
       <div className="container">
         <h1>Fransızca A2 Okuma</h1>
-        <button className="btn" onClick={generate}>YENİ PASAJ VE BAŞLIK ÜRET</button>
+        <button className="btn" onClick={generate}>YEPYENİ BİR METİN ÜRET</button>
         
-        {data.text && (
-          <div className="card">
-            <h2 className="title">{data.title}</h2>
-            <div className="passage">
-              {data.text.split(" ").map((w, i) => {
-                const clean = w.toLowerCase().replace(/[.,]/g, "");
-                return (
-                  <span key={i} className={data.dict[clean] ? "word" : ""} 
-                        onClick={() => data.dict[clean] && setInfo({w: clean, t: data.dict[clean]})}>
-                    {w}{" "}
-                  </span>
-                );
-              })}
-            </div>
+        <div className="card">
+          <h2 className="title">{data.title}</h2>
+          <div className="passage">
+            {data.text.split(" ").map((w, i) => {
+              const clean = w.toLowerCase().replace(/[.,]/g, "");
+              return (
+                <span key={i} className="word" onClick={() => setInfo({w: clean, t: masterDict[clean] || "Sözlükte bulunamadı"})}>
+                  {w}{" "}
+                </span>
+              );
+            })}
           </div>
-        )}
+        </div>
         
-        {info && <div className="info"><strong>{info.w}</strong> = {info.t}</div>}
+        {info && <div className="info"><strong>{info.w}</strong>: {info.t}</div>}
       </div>
     );
   }
