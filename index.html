@@ -2,27 +2,27 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Lexicon - A2 Uzun Okuma</title>
+  <title>Lexicon - A2 Pasaj</title>
   <style>
-    body { background: #0f172a; color: #e2e8f0; font-family: sans-serif; padding: 20px; line-height: 1.8; }
+    body { background: #0f172a; color: #e2e8f0; font-family: sans-serif; padding: 20px; }
     .container { max-width: 800px; margin: 0 auto; }
     .card { background: #1e293b; padding: 30px; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-    .passage { font-size: 1.25rem; }
-    .clickable { color: #38bdf8; cursor: pointer; border-bottom: 2px dashed #38bdf8; font-weight: 500; }
-    .btn { background: #38bdf8; color: #0f172a; border: none; padding: 15px 30px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-bottom: 20px; }
-    .info-box { margin-top: 20px; padding: 15px; background: #0f172a; border-left: 4px solid #38bdf8; }
+    .passage { line-height: 1.8; font-size: 1.25rem; }
+    .word { cursor: pointer; color: #38bdf8; border-bottom: 1px dashed #38bdf8; }
+    .btn { background: #f472b6; color: #000; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-bottom: 20px; }
+    .info { margin-top: 15px; padding: 10px; background: #000; border-left: 4px solid #f472b6; }
   </style>
 </head>
 <body>
 
 <div id="root"></div>
 
-<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
 <script type="text/babel">
-  const { useState, useEffect } = React;
+  const { useState } = React;
 
   const dict = {
     "montagnes": "dağlar", "aventure": "macera", "découvrir": "keşfetmek", "paysage": "manzara",
@@ -30,65 +30,47 @@
     "nature": "doğa", "village": "köy", "randonnée": "doğa yürüyüşü", "magnifique": "muhteşem"
   };
 
+  const sentenceBank = [
+    "Thomas décide de faire un grand voyage dans les montagnes françaises. ",
+    "Il veut découvrir la nature sauvage et profiter du paysage magnifique. ",
+    "Le chemin est long mais très tranquille pour la randonnée. ",
+    "Les habitants de ce petit village sont vraiment très accueillants. ",
+    "Thomas aime partager ses histoires avec les habitants chaque soir. ",
+    "C'est une vraie aventure simple pour découvrir la nature. ",
+    "Il observe chaque détail du paysage autour de lui. ",
+    "La montagne lui apporte une paix intérieure très profonde. "
+  ];
+
   function App() {
-    // State'i obje olarak tutuyoruz ki "key" değiştiğinde React kesinlikle yeniden çizsin
-    const [passageData, setPassageData] = useState({ id: 0, text: "" });
-    const [wordInfo, setWordInfo] = useState(null);
+    const [text, setText] = useState(() => sentenceBank.join(" "));
+    const [info, setInfo] = useState(null);
 
-    const generateLongPassage = () => {
-      const sentenceBank = [
-        "Thomas décide de faire un grand voyage dans les montagnes françaises. ",
-        "Il veut découvrir la nature sauvage et profiter du paysage magnifique. ",
-        "Le chemin est long mais très tranquille pour la randonnée. ",
-        "Les habitants de ce petit village sont vraiment très accueillants. ",
-        "Thomas aime partager ses histoires avec les habitants chaque soir. ",
-        "C'est une vraie aventure simple pour découvrir la nature. ",
-        "Il observe chaque détail du paysage autour de lui. ",
-        "La montagne lui apporte une paix intérieure très profonde. "
-      ];
-      
-      let newPassage = "";
-      // 35 cümle ile 200+ kelimeyi garanti altına alıyoruz
+    const generate = () => {
+      let newText = [];
       for (let i = 0; i < 35; i++) {
-        newPassage += sentenceBank[Math.floor(Math.random() * sentenceBank.length)];
+        newText.push(sentenceBank[Math.floor(Math.random() * sentenceBank.length)]);
       }
-      
-      setPassageData({
-        id: Date.now(), // Her seferinde eşsiz bir ID
-        text: newPassage
-      });
-    };
-
-    useEffect(() => {
-      generateLongPassage();
-    }, []);
-
-    const handleWordClick = (word) => {
-      const clean = word.toLowerCase().replace(/[.,]/g, "");
-      if (dict[clean]) {
-        setWordInfo({ fr: clean, tr: dict[clean] });
-      }
+      setText(newText.join(" "));
     };
 
     return (
       <div className="container">
-        <h1>Fransızca A2 Okuma Parçası</h1>
-        <button className="btn" onClick={generateLongPassage}>📖 Yeni Pasaj Üret (200+ Kelime)</button>
-        
-        <div className="card passage" key={passageData.id}>
-          {passageData.text.split(" ").map((w, i) => (
-            <span key={i} className={dict[w.toLowerCase().replace(/[.,]/g, "")] ? "clickable" : ""}
-                  onClick={() => handleWordClick(w)}>
-              {w}{" "}
-            </span>
-          ))}
-        </div>
-
-        {wordInfo && (
-          <div className="info-box">
-            <strong>{wordInfo.fr}</strong> → {wordInfo.tr}
+        <h1>Fransızca A2 Okuma</h1>
+        <button className="btn" onClick={generate}>YENİ PASAJ ÜRET</button>
+        <div className="card">
+          <div className="passage">
+            {text.split(" ").map((w, i) => {
+              const clean = w.toLowerCase().replace(/[.,]/g, "");
+              const isWord = dict[clean];
+              return (
+                <span key={i} className={isWord ? "word" : ""} onClick={() => isWord && setInfo({w: clean, t: dict[clean]})}>
+                  {w}{" "}
+                </span>
+              );
+            })}
           </div>
-        )}
+        </div>
+        {info && <div className="info"><strong>{info.w}</strong> = {info.t}</div>}
       </div>
     );
   }
