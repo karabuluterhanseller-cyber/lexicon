@@ -2,16 +2,16 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Lexicon - Uzun Metin Okuma ve Banka</title>
+  <title>Lexicon - A2 Uzun Okuma Parçası</title>
   <style>
-    body { background: #0f172a; color: #f8fafc; font-family: sans-serif; padding: 20px; }
+    body { background: #0f172a; color: #e2e8f0; font-family: sans-serif; padding: 20px; line-height: 1.8; }
     .container { max-width: 800px; margin: 0 auto; }
-    .card { background: #1e293b; padding: 30px; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-    .passage { line-height: 2; font-size: 1.2rem; margin: 20px 0; }
-    .clickable { color: #38bdf8; cursor: pointer; border-bottom: 2px dashed #38bdf8; font-weight: bold; }
-    .clickable:hover { background: rgba(56, 189, 248, 0.2); }
-    .btn { background: #38bdf8; color: #0f172a; border: none; padding: 15px 30px; border-radius: 8px; cursor: pointer; font-weight: bold; }
-    .vault-status { margin-top: 10px; font-size: 0.9rem; color: #94a3b8; }
+    .card { background: #1e293b; padding: 30px; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+    .passage { font-size: 1.25rem; }
+    .clickable { color: #38bdf8; cursor: pointer; border-bottom: 2px dashed #38bdf8; font-weight: 500; }
+    .clickable:hover { background: rgba(56, 189, 248, 0.1); }
+    .btn { background: #38bdf8; color: #0f172a; border: none; padding: 15px 30px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1rem; width: 100%; }
+    .info-box { margin-top: 20px; padding: 15px; background: #0f172a; border-left: 4px solid #38bdf8; border-radius: 4px; }
   </style>
 </head>
 <body>
@@ -23,55 +23,41 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
 
 <script type="text/babel">
-  const { useState, useEffect } = React;
+  const { useState } = React;
 
-  // Sözlüğümüz (Genişletilebilir)
   const dict = {
-    "voyage": "seyahat", "montagne": "dağ", "paysage": "manzara", "habitants": "halk",
-    "accueillants": "misafirperver", "simple": "basit", "aventure": "macera", "nature": "doğa",
-    "découvrir": "keşfetmek", "tranquille": "sakin", "partager": "paylaşmak", "chemin": "yol"
+    "montagnes": "dağlar", "aventure": "macera", "découvrir": "keşfetmek", "paysage": "manzara",
+    "habitants": "halk", "accueillants": "misafirperver", "tranquille": "sakin", "chemin": "yol",
+    "nature": "doğa", "village": "köy", "randonnée": "doğa yürüyüşü", "magnifique": "muhteşem",
+    "sommet": "zirve", "expérience": "deneyim", "liberté": "özgürlük", "souvenirs": "anılar"
   };
 
   function App() {
-    const [text, setText] = useState("Metin oluşturmak için butona basın.");
-    const [vault, setVault] = useState(() => JSON.parse(localStorage.getItem("lex_vault") || "[]"));
+    const [text, setText] = useState("Lütfen metin üretmek için aşağıdaki butona basın.");
+    const [wordInfo, setWordInfo] = useState(null);
 
     const generateLongPassage = () => {
-      // 200+ kelimelik bir metin yapısı
-      const sentences = [
-        "Thomas décide de faire un grand voyage dans les montagnes françaises. ",
-        "Il veut découvrir la nature sauvage et profiter du paysage magnifique. ",
-        "Le chemin est long mais très tranquille, idéal pour réfléchir. ",
-        "Les habitants de ce petit village sont vraiment très accueillants et gentils. ",
-        "Thomas aime partager ses histoires avec eux chaque soir. ",
-        "C'est une aventure simple mais enrichissante pour son esprit. ",
-        "Il observe chaque détail de la faune et de la flore autour de lui. ",
-        "Le calme de la montagne lui apporte une paix intérieure profonde. ",
-        "Demain, il continuera son chemin vers un autre sommet lointain. ",
-        "Il se sent libre et heureux de vivre cette expérience authentique. "
+      // 200+ kelime için pasaj blokları
+      const blocks = [
+        "Thomas décide de faire un grand voyage dans les montagnes françaises cet été. Il veut découvrir la nature sauvage et profiter du paysage magnifique. La randonnée est longue mais le calme de la montagne lui apporte une paix intérieure profonde.",
+        "Il arrive dans un petit village tranquille où les habitants sont très accueillants. Ils aiment partager leur culture et leurs histoires avec les visiteurs. Thomas apprend beaucoup de choses sur la vie simple ici. Il mange des produits locaux et il se sent très bien.",
+        "Chaque matin, il se lève tôt pour explorer un nouveau chemin vers le sommet. L'aventure est une expérience authentique qui change sa vision du monde. Il prend beaucoup de photos pour garder des souvenirs précieux de ce voyage. La liberté qu'il ressent est incroyable.",
+        "Le soir, il observe les étoiles et il pense à sa famille. C'est le plus beau voyage de sa vie. Il sait qu'il reviendra ici un jour car il a trouvé un endroit spécial. La nature est le meilleur professeur pour un jeune homme curieux."
       ];
-      // Metni 20 kez tekrarlayarak ~200 kelimeye ulaştırıyoruz
-      setText(sentences.join(" ").repeat(2));
+      // 4 bloğu birleştirip daha uzun bir metin yapıyoruz
+      setText(blocks.join(" ") + " " + blocks.reverse().join(" "));
     };
 
     const handleWordClick = (word) => {
       const clean = word.toLowerCase().replace(/[.,]/g, "");
       if (dict[clean]) {
-        // Kelime bankasına ekleme mantığı
-        if (!vault.includes(clean)) {
-          const newVault = [...vault, { word: clean, translation: dict[clean] }];
-          setVault(newVault);
-          localStorage.setItem("lex_vault", JSON.stringify(newVault));
-          alert(`"${clean}" kelimesi bankaya eklendi!`);
-        } else {
-          alert(`"${clean}" kelimesi zaten bankanızda mevcut.`);
-        }
+        setWordInfo({ fr: clean, tr: dict[clean] });
       }
     };
 
     return (
       <div className="container">
-        <h1>Fransızca A2 Okuma & Banka</h1>
+        <h1>Fransızca A2 Okuma Parçası</h1>
         <button className="btn" onClick={generateLongPassage}>📖 Pasajı Üret (200+ Kelime)</button>
         
         <div className="card passage">
@@ -83,9 +69,11 @@
           ))}
         </div>
 
-        <div className="vault-status">
-          Bankadaki toplam kelime sayısı: {vault.length}
-        </div>
+        {wordInfo && (
+          <div className="info-box">
+            <strong>{wordInfo.fr}</strong> → {wordInfo.tr}
+          </div>
+        )}
       </div>
     );
   }
