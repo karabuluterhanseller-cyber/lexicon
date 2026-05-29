@@ -377,10 +377,18 @@
             })
           });
           const data = await res.json();
-          const text = (data.content || []).map(c => c.text || "").join("").trim().replace(/```[\w]*/g, "").replace(/```/g, "").trim();
-          const match = text.match(/\{[\s\S]*\}/);
+          const text = (data.content || []).map(c => c.text || "").join("").trim();
+          const clean = text.replace(/^```[\w]*\s*/m, "").replace(/\s*```$/m, "").trim();
+          const match = clean.match(/\{[\s\S]*\}/);
           if (match) {
-            setSearchResult(JSON.parse(match[0]));
+            try {
+              const parsed = JSON.parse(match[0]);
+              setSearchResult(parsed);
+            } catch(pe) {
+              console.error("Parse error:", pe, "Raw:", text.slice(0, 200));
+            }
+          } else {
+            console.error("No JSON found in:", text.slice(0, 200));
           }
         } catch(e) {
           console.error("Search error:", e);
