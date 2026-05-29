@@ -358,25 +358,32 @@
         if (!searchQuery.trim()) return;
         setLoading(true);
         const q = searchQuery.toLowerCase().trim();
+
         const localMatch = (CORE_PRESETS[targetLang] || []).find(w => w.word === q);
-        
-        if (localMatch) {
-          setSearchResult(localMatch);
-        } else {
-          setTimeout(() => {
-            const simulatedTr = getDynamicTranslation(q);
-            setSearchResult({
-              word: q,
-              meaning: "an integrated property or conceptual phenomenon within specified textual context",
-              translation: simulatedTr,
-              level: "Advanced",
-              ipa: `/${q}/`,
-              pos: "noun",
-              etymology: "Derived from modern analytical terminology frameworks.",
-              synonyms: ["paradigm", "element"],
-              example: `The framework parameters verified the ${q} condition during runtime.`
-            });
-          }, 400);
+        if (localMatch) { setSearchResult(localMatch); setLoading(false); return; }
+
+        try {
+          const langNames = { en: "English", fr: "French", de: "German", es: "Spanish", ru: "Russian" };
+          const langName = langNames[targetLang] || "English";
+          const nativeLangNames = { tr: "Turkish", en: "English", de: "German", fr: "French", es: "Spanish", it: "Italian", pt: "Portuguese", ru: "Russian", zh: "Chinese", ja: "Japanese", ko: "Korean", ar: "Arabic" };
+          const nativeLangLabel = nativeLangNames[nativeLang] || "Turkish";
+          const res = await fetch("https://api.anthropic.com/v1/messages", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              model: "claude-sonnet-4-20250514",
+              max_tokens: 600,
+              messages: [{ role: "user", content: "You are a dictionary. For the " + langName + " word \"" + q + "\", provide: 1) concise Cambridge-style definition, 2) part of speech, 3) IPA pronunciation, 4) translation into " + nativeLangLabel + " (word or short phrase only), 5) etymology (1 sentence), 6) one natural example sentence. Respond ONLY as raw JSON no backticks: {\"word\":\"\",\"meaning\":\"\",\"pos\":\"\",\"ipa\":\"\",\"translation\":\"\",\"etymology\":\"\",\"example\":\"\",\"synonyms\":[]}" }]
+            })
+          });
+          const data = await res.json();
+          const text = (data.content || []).map(c => c.text || "").join("").trim().replace(/```[\w]*/g, "").replace(/```/g, "").trim();
+          const match = text.match(/\{[\s\S]*\}/);
+          if (match) {
+            setSearchResult(JSON.parse(match[0]));
+          }
+        } catch(e) {
+          console.error("Search error:", e);
         }
         setLoading(false);
       };
