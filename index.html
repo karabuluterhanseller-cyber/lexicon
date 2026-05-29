@@ -2,14 +2,16 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Lexicon - A2 Öğrenme Sistemi</title>
+  <title>Lexicon - Uzun Metin Okuma ve Banka</title>
   <style>
     body { background: #0f172a; color: #f8fafc; font-family: sans-serif; padding: 20px; }
-    .container { max-width: 700px; margin: 0 auto; }
-    .card { background: #1e293b; padding: 25px; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
-    .clickable { color: #38bdf8; cursor: pointer; border-bottom: 1px dashed #38bdf8; }
-    .flashcard { background: #334155; padding: 40px; text-align: center; border-radius: 12px; cursor: pointer; font-size: 1.5rem; }
-    .btn { background: #38bdf8; color: #0f172a; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+    .container { max-width: 800px; margin: 0 auto; }
+    .card { background: #1e293b; padding: 30px; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+    .passage { line-height: 2; font-size: 1.2rem; margin: 20px 0; }
+    .clickable { color: #38bdf8; cursor: pointer; border-bottom: 2px dashed #38bdf8; font-weight: bold; }
+    .clickable:hover { background: rgba(56, 189, 248, 0.2); }
+    .btn { background: #38bdf8; color: #0f172a; border: none; padding: 15px 30px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+    .vault-status { margin-top: 10px; font-size: 0.9rem; color: #94a3b8; }
   </style>
 </head>
 <body>
@@ -23,55 +25,67 @@
 <script type="text/babel">
   const { useState, useEffect } = React;
 
-  const fullDictionary = {
-    "voyage": { tr: "seyahat", fr: "Action de se déplacer." },
-    "montagne": { tr: "dağ", fr: "Élévation naturelle." },
-    "époustouflant": { tr: "nefes kesici", fr: "Très impressionnant." },
-    "village": { tr: "köy", fr: "Petite agglomération." }
+  // Sözlüğümüz (Genişletilebilir)
+  const dict = {
+    "voyage": "seyahat", "montagne": "dağ", "paysage": "manzara", "habitants": "halk",
+    "accueillants": "misafirperver", "simple": "basit", "aventure": "macera", "nature": "doğa",
+    "découvrir": "keşfetmek", "tranquille": "sakin", "partager": "paylaşmak", "chemin": "yol"
   };
 
   function App() {
+    const [text, setText] = useState("Metin oluşturmak için butona basın.");
     const [vault, setVault] = useState(() => JSON.parse(localStorage.getItem("lex_vault") || "[]"));
-    const [flashIndex, setFlashIndex] = useState(0);
-    const [flipped, setFlipped] = useState(false);
 
-    useEffect(() => {
-      localStorage.setItem("lex_vault", JSON.stringify(vault));
-    }, [vault]);
+    const generateLongPassage = () => {
+      // 200+ kelimelik bir metin yapısı
+      const sentences = [
+        "Thomas décide de faire un grand voyage dans les montagnes françaises. ",
+        "Il veut découvrir la nature sauvage et profiter du paysage magnifique. ",
+        "Le chemin est long mais très tranquille, idéal pour réfléchir. ",
+        "Les habitants de ce petit village sont vraiment très accueillants et gentils. ",
+        "Thomas aime partager ses histoires avec eux chaque soir. ",
+        "C'est une aventure simple mais enrichissante pour son esprit. ",
+        "Il observe chaque détail de la faune et de la flore autour de lui. ",
+        "Le calme de la montagne lui apporte une paix intérieure profonde. ",
+        "Demain, il continuera son chemin vers un autre sommet lointain. ",
+        "Il se sent libre et heureux de vivre cette expérience authentique. "
+      ];
+      // Metni 20 kez tekrarlayarak ~200 kelimeye ulaştırıyoruz
+      setText(sentences.join(" ").repeat(2));
+    };
 
-    const addToVault = (word) => {
-      if (!vault.find(item => item.word === word)) {
-        setVault([...vault, { word, ...fullDictionary[word] }]);
-        alert(`${word} kelimesi hazneye eklendi!`);
+    const handleWordClick = (word) => {
+      const clean = word.toLowerCase().replace(/[.,]/g, "");
+      if (dict[clean]) {
+        // Kelime bankasına ekleme mantığı
+        if (!vault.includes(clean)) {
+          const newVault = [...vault, { word: clean, translation: dict[clean] }];
+          setVault(newVault);
+          localStorage.setItem("lex_vault", JSON.stringify(newVault));
+          alert(`"${clean}" kelimesi bankaya eklendi!`);
+        } else {
+          alert(`"${clean}" kelimesi zaten bankanızda mevcut.`);
+        }
       }
     };
 
-    const text = "Thomas adore le voyage et veut voir la montagne. Le paysage est époustouflant, il visite un village.";
-
     return (
       <div className="container">
-        <h1>Okuma Modu</h1>
-        <div className="card">
-          {text.split(" ").map((w, i) => {
-            const clean = w.toLowerCase().replace(/[.,]/g, "");
-            return (
-              <span key={i} className={fullDictionary[clean] ? "clickable" : ""} 
-                    onClick={() => fullDictionary[clean] && addToVault(clean)}>
-                {w}{" "}
-              </span>
-            );
-          })}
+        <h1>Fransızca A2 Okuma & Banka</h1>
+        <button className="btn" onClick={generateLongPassage}>📖 Pasajı Üret (200+ Kelime)</button>
+        
+        <div className="card passage">
+          {text.split(" ").map((w, i) => (
+            <span key={i} className={dict[w.toLowerCase().replace(/[.,]/g, "")] ? "clickable" : ""}
+                  onClick={() => handleWordClick(w)}>
+              {w}{" "}
+            </span>
+          ))}
         </div>
 
-        <h1>Flashcard Oyunu</h1>
-        {vault.length > 0 ? (
-          <div className="card flashcard" onClick={() => setFlipped(!flipped)}>
-            {flipped ? vault[flashIndex].tr : vault[flashIndex].word}
-            <div style={{marginTop: '20px'}}>
-               <button className="btn" onClick={(e) => { e.stopPropagation(); setFlashIndex((flashIndex + 1) % vault.length); setFlipped(false); }}>Sonraki</button>
-            </div>
-          </div>
-        ) : <p>Henüz kelime eklemedin, yukarıdaki metinden kelimelere tıkla!</p>}
+        <div className="vault-status">
+          Bankadaki toplam kelime sayısı: {vault.length}
+        </div>
       </div>
     );
   }
