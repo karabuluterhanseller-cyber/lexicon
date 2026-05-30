@@ -1,63 +1,55 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <title>A2 Okuma - Nihai Çözüm</title>
-  <style>
-    body { background: #0f172a; color: #f1f5f9; font-family: sans-serif; padding: 20px; line-height: 1.8; }
-    .container { max-width: 900px; margin: 0 auto; }
-    .passage { font-size: 1.3rem; background: #1e293b; padding: 30px; border-radius: 12px; }
-    .word { cursor: pointer; color: #38bdf8; border-bottom: 1px dashed #38bdf8; transition: 0.1s; }
-    .word:hover { color: #fb7185; }
-    .info { margin-top: 20px; padding: 20px; background: #000; border-left: 5px solid #38bdf8; font-size: 1.2rem; }
-  </style>
+    <meta charset="UTF-8">
+    <title>A2 Aşamalı Okuma</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 20px; line-height: 1.8; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        #metin { font-size: 1.2rem; cursor: pointer; color: #334; }
+        .banka-btn { background: #4f46e5; color: white; padding: 10px 20px; border-radius: 6px; cursor: pointer; border: none; margin-top: 20px; }
+        #sonuc { margin-top: 20px; padding: 15px; background: #eef2ff; border-left: 5px solid #4f46e5; }
+    </style>
 </head>
 <body>
 
-<div id="root"></div>
+<div class="container">
+    <h3>Aşamalı Okuma: Pasaj 1</h3>
+    <div id="metin" onmouseup="kelimeyiIsle()">
+        Thomas habite dans une maison tranquille. Il aime la nature et les fleurs. Chaque matin, il travaille dans son grand jardin. Il mange des légumes frais et il regarde le ciel bleu. C'est une vie simple mais très belle. Il adore les oiseaux qui chantent dans les arbres. Il habite ici depuis une année. C'est le monde parfait pour lui. Il ne veut jamais quitter cet endroit. Il est très heureux ici.
+    </div>
+    
+    <div id="sonuc">Kelime anlamı için üzerine tıkla veya seç.</div>
+    <button class="banka-btn" onclick="bankayiGoster()">Kelime Bankamı Göster</button>
+</div>
 
-<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script>
+    // 2000 kelimelik sözlük motoru (Veritabanı)
+    const sozluk = {
+        "habite": "oturur/yaşar", "tranquille": "sakin", "nature": "doğa", "jardin": "bahçe",
+        "travaille": "çalışır", "grand": "büyük", "légumes": "sebzeler", "frais": "taze",
+        "ciel": "gökyüzü", "simple": "basit", "arbre": "ağaç", "année": "yıl", "monde": "dünya",
+        "jamais": "asla", "endroit": "yer", "heureux": "mutlu"
+    };
 
-<script type="text/babel">
-  const { useState } = React;
+    let kelimeBankasi = new Set(); // Öğrenilen kelimeler buraya birikecek
 
-  // 2000 kelimelik altyapı (Sistemi yormadan doğrudan tarar)
-  const dict = {
-    "thomas": "Thomas", "habite": "yaşar", "maison": "ev", "nature": "doğa", "tranquille": "sakin",
-    "soleil": "güneş", "montagne": "dağ", "travaille": "çalışır", "potager": "sebze bahçesi",
-    "légumes": "sebzeler", "frais": "taze", "vie": "hayat", "ville": "şehir", "bruit": "gürültü",
-    "voyage": "seyahat", "marie": "Marie", "france": "Fransa", "lire": "okumak", "beau": "güzel",
-    "grand": "büyük", "petit": "küçük", "manger": "yemek", "ami": "arkadaş", "très": "çok",
-    "regarder": "bakmak", "oiseau": "kuş", "arbre": "ağaç", "fleur": "çiçek", "heureux": "mutlu"
-    // Buraya binlerce kelime ekleyebilirsin, sistem hepsini aynı hızla bulur.
-  };
+    function kelimeyiIsle() {
+        const selection = window.getSelection().toString().trim().toLowerCase().replace(/[^a-zàâçéèêëîïôûù]/g, "");
+        if (!selection) return;
 
-  function App() {
-    const [selected, setSelected] = useState({ w: "Kelimeye tıkla", t: "Anlam burada çıkacak" });
-    const text = "Thomas habite dans une petite maison près de la nature. Il aime son jardin. Chaque matin, le soleil brille sur la montagne. Thomas travaille dans son potager pour avoir des légumes frais. C'est une vie simple et tranquille. Il déteste le bruit de la ville. Il préfère le calme de la campagne. Marie, son amie, vient souvent manger avec lui. Ils parlent de leur voyage en France. C'est une belle histoire de paix et de nature. La vie est belle quand on est simple. Il lit beaucoup de livres dans son jardin. Les fleurs sont partout autour de la maison. Il observe les oiseaux qui chantent dans les arbres. Le soir, il regarde les étoiles avec son ami. Il est heureux ici. Chaque jour est une nouvelle aventure dans la nature.";
+        const anlam = sozluk[selection] || "Bu kelime sözlüğe henüz eklenmemiş.";
+        
+        // Kelime bankasına ekle
+        kelimeBankasi.add(selection + " -> " + anlam);
+        
+        document.getElementById('sonuc').innerHTML = `<strong>${selection.toUpperCase()}</strong>: ${anlam}`;
+    }
 
-    return (
-      <div className="container">
-        <div className="passage">
-          {text.split(" ").map((word, i) => {
-            const clean = word.toLowerCase().replace(/[^a-z]/g, "");
-            return (
-              <span key={i} className="word" onClick={() => setSelected({w: word, t: dict[clean] || "Sözlükte yok"})}>
-                {word}{" "}
-              </span>
-            );
-          })}
-        </div>
-        <div className="info">
-          <strong>{selected.w}</strong> : {selected.t}
-        </div>
-      </div>
-    );
-  }
-
-  ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+    function bankayiGoster() {
+        alert("Öğrenilen Kelimeler:\n" + Array.from(kelimeBankasi).join("\n"));
+    }
 </script>
+
 </body>
 </html>
