@@ -7,10 +7,11 @@
     body { background: #0f172a; color: #f1f5f9; font-family: sans-serif; padding: 20px; }
     .container { max-width: 700px; margin: 0 auto; }
     .card { background: #1e293b; padding: 25px; border-radius: 12px; }
-    .passage { line-height: 1.8; font-size: 0.95rem; }
+    .passage { line-height: 1.8; font-size: 1rem; text-align: justify; }
     .word { cursor: pointer; color: #38bdf8; border-bottom: 1px dashed #38bdf8; }
-    .btn { background: #f472b6; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; margin-bottom: 20px; }
+    .btn { background: #f472b6; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-bottom: 20px; }
     .info { margin-top: 20px; padding: 15px; background: #000; border-left: 4px solid #f472b6; }
+    p { margin-bottom: 1.5rem; }
   </style>
 </head>
 <body>
@@ -24,52 +25,60 @@
 <script type="text/babel">
   const { useState } = React;
 
-  // Genişletilmiş Sözlük
   const dictionary = {
-    "le": "o", "la": "o", "les": "onlar", "est": "dir", "voyage": "seyahat", "montagne": "dağ",
-    "nature": "doğa", "tranquille": "sakin", "fleur": "çiçek", "soleil": "güneş",
-    "travaille": "çalışır", "grand": "büyük", "petit": "küçük", "manger": "yemek",
-    "ciel": "gökyüzü", "oiseau": "kuş", "maison": "ev", "chat": "kedi", "chien": "köpek",
-    "beau": "güzel", "livre": "kitap", "ecole": "okul", "ami": "arkadaş", "très": "çok"
+    "le": "o/bu", "est": "dir", "voyage": "seyahat", "montagne": "dağ", "nature": "doğa",
+    "tranquille": "sakin", "fleur": "çiçek", "soleil": "güneş", "travaille": "çalışır",
+    "grand": "büyük", "petit": "küçük", "manger": "yemek", "ciel": "gökyüzü",
+    "oiseau": "kuş", "maison": "ev", "ami": "arkadaş", "très": "çok", "beau": "güzel"
   };
 
   function App() {
-    const [text, setText] = useState("Metin üretmek için butona basınız.");
-    const [selectedWord, setSelectedWord] = useState({ w: "", t: "" });
+    const [paragraphs, setParagraphs] = useState([]);
+    const [selected, setSelected] = useState({ w: "", t: "" });
 
     const generate = () => {
-      const words = Object.keys(dictionary);
-      let newPassage = "";
-      // 200+ kelime üret
-      for(let i=0; i<250; i++) {
-        newPassage += words[Math.floor(Math.random() * words.length)] + " ";
+      const sentenceBank = [
+        "Thomas fait un grand voyage dans la montagne tranquille. ",
+        "Il observe un bel oiseau dans le ciel bleu. ",
+        "Marie travaille dans une maison avec beaucoup de fleurs. ",
+        "Le soleil est très beau et la nature est magnifique. ",
+        "Mon ami veut manger dans un petit restaurant. ",
+        "C'est une expérience très enrichissante pour tout le monde. "
+      ];
+
+      let newParagraphs = [];
+      for (let p = 0; p < 4; p++) {
+        let text = "";
+        for (let s = 0; s < 10; s++) {
+          text += sentenceBank[Math.floor(Math.random() * sentenceBank.length)];
+        }
+        newParagraphs.push(text);
       }
-      setText(newPassage);
+      setParagraphs(newParagraphs);
     };
 
     return (
       <div className="container">
-        <button className="btn" onClick={generate}>YENİ PASAJ ÜRET (200+ Kelime)</button>
+        <button className="btn" onClick={generate}>YENİ PASAJ ÜRET (PARAGRAFLI)</button>
         <div className="card">
           <div className="passage">
-            {text.split(" ").map((w, i) => {
-              const clean = w.toLowerCase();
-              return (
-                <span 
-                  key={i} 
-                  className="word" 
-                  onClick={() => setSelectedWord({ w, t: dictionary[clean] || "Sözlükte tanımlı değil" })}
-                >
-                  {w}{" "}
-                </span>
-              );
-            })}
+            {paragraphs.map((p, pIdx) => (
+              <p key={pIdx}>
+                {p.split(" ").map((w, wIdx) => {
+                  const clean = w.toLowerCase().replace(/[.,]/g, "");
+                  return (
+                    <span key={wIdx} className="word" onClick={() => setSelected({w, t: dictionary[clean] || "Sözlükte yok"})}>
+                      {w}{" "}
+                    </span>
+                  );
+                })}
+              </p>
+            ))}
           </div>
         </div>
-        
-        {selectedWord.w && (
-          <div className="info" key={selectedWord.w + Math.random()}>
-            <strong>{selectedWord.w}</strong>: {selectedWord.t}
+        {selected.w && (
+          <div className="info" key={Math.random()}>
+            <strong>{selected.w}</strong>: {selected.t}
           </div>
         )}
       </div>
