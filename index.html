@@ -2,52 +2,71 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>A2 Aşamalı Okuma</title>
+    <title>A2 Aşamalı Okuma Sistemi</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 20px; line-height: 1.8; }
+        body { font-family: sans-serif; background: #f0f2f5; padding: 20px; line-height: 1.8; }
         .container { max-width: 800px; margin: auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        #metin { font-size: 1.2rem; cursor: pointer; color: #334; }
-        .banka-btn { background: #4f46e5; color: white; padding: 10px 20px; border-radius: 6px; cursor: pointer; border: none; margin-top: 20px; }
+        #metin { font-size: 1.2rem; cursor: pointer; color: #334; background: #fff; padding: 10px; }
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+        .btn { padding: 12px 20px; border-radius: 6px; cursor: pointer; border: none; font-weight: bold; }
+        .btn-next { background: #10b981; color: white; }
+        .btn-bank { background: #4f46e5; color: white; }
         #sonuc { margin-top: 20px; padding: 15px; background: #eef2ff; border-left: 5px solid #4f46e5; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h3>Aşamalı Okuma: Pasaj 1</h3>
+    <h3 id="baslik">Pasaj 1</h3>
     <div id="metin" onmouseup="kelimeyiIsle()">
-        Thomas habite dans une maison tranquille. Il aime la nature et les fleurs. Chaque matin, il travaille dans son grand jardin. Il mange des légumes frais et il regarde le ciel bleu. C'est une vie simple mais très belle. Il adore les oiseaux qui chantent dans les arbres. Il habite ici depuis une année. C'est le monde parfait pour lui. Il ne veut jamais quitter cet endroit. Il est très heureux ici.
-    </div>
+        </div>
     
-    <div id="sonuc">Kelime anlamı için üzerine tıkla veya seç.</div>
-    <button class="banka-btn" onclick="bankayiGoster()">Kelime Bankamı Göster</button>
+    <div id="sonuc">Kelimeye tıkla veya seç.</div>
+    
+    <div class="btn-group">
+        <button class="btn btn-next" onclick="siradakiPasaj()">Sıradaki Paragrafı Getir</button>
+        <button class="btn btn-bank" onclick="bankayiGoster()">Kelime Bankamı Göster</button>
+    </div>
 </div>
 
 <script>
-    // 2000 kelimelik sözlük motoru (Veritabanı)
+    // 2000 kelimeye kadar genişletilebilir veritabanı
     const sozluk = {
         "habite": "oturur/yaşar", "tranquille": "sakin", "nature": "doğa", "jardin": "bahçe",
         "travaille": "çalışır", "grand": "büyük", "légumes": "sebzeler", "frais": "taze",
         "ciel": "gökyüzü", "simple": "basit", "arbre": "ağaç", "année": "yıl", "monde": "dünya",
-        "jamais": "asla", "endroit": "yer", "heureux": "mutlu"
+        "jamais": "asla", "endroit": "yer", "heureux": "mutlu", "voyage": "seyahat", "ville": "şehir"
     };
 
-    let kelimeBankasi = new Set(); // Öğrenilen kelimeler buraya birikecek
+    const pasajlar = [
+        "Thomas habite dans une maison tranquille. Il aime la nature et les fleurs. Chaque matin, il travaille dans son grand jardin. Il mange des légumes frais et il regarde le ciel bleu. C'est une vie simple mais très belle.",
+        "Marie veut faire un grand voyage à travers la France. Elle habite dans une ville avec beaucoup de bruit. Elle veut voir la montagne et la nature. Elle prend son livre et elle part. C'est un voyage qui change tout pour elle.",
+        "Ils sont très heureux ici. Chaque jour est une nouvelle aventure dans la nature. La technologie moderne n'a pas de place dans son monde paisible. Il préfère la lecture et la méditation. C'est une vie riche et simple."
+    ];
+
+    let index = 0;
+    let kelimeBankasi = new Set();
+
+    // İlk yükleme
+    document.getElementById('metin').innerText = pasajlar[0];
+
+    function siradakiPasaj() {
+        index = (index + 1) % pasajlar.length;
+        document.getElementById('metin').innerText = pasajlar[index];
+        document.getElementById('baslik').innerText = "Pasaj " + (index + 1);
+    }
 
     function kelimeyiIsle() {
         const selection = window.getSelection().toString().trim().toLowerCase().replace(/[^a-zàâçéèêëîïôûù]/g, "");
         if (!selection) return;
 
-        const anlam = sozluk[selection] || "Bu kelime sözlüğe henüz eklenmemiş.";
-        
-        // Kelime bankasına ekle
+        const anlam = sozluk[selection] || "Bu kelime sözlükte henüz tanımlı değil.";
         kelimeBankasi.add(selection + " -> " + anlam);
-        
         document.getElementById('sonuc').innerHTML = `<strong>${selection.toUpperCase()}</strong>: ${anlam}`;
     }
 
     function bankayiGoster() {
-        alert("Öğrenilen Kelimeler:\n" + Array.from(kelimeBankasi).join("\n"));
+        alert("Öğrenilen Kelimeleriniz:\n" + Array.from(kelimeBankasi).join("\n"));
     }
 </script>
 
