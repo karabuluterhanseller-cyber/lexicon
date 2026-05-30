@@ -2,15 +2,15 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>A2 Okuma - Yapılandırılmış Metinler</title>
+  <title>A2 Okuma - Profesyonel Yapı</title>
   <style>
-    body { background: #0f172a; color: #f1f5f9; font-family: sans-serif; padding: 20px; }
-    .container { max-width: 700px; margin: 0 auto; }
-    .card { background: #1e293b; padding: 25px; border-radius: 12px; }
-    .passage { line-height: 1.8; font-size: 1rem; }
+    body { background: #0f172a; color: #f1f5f9; font-family: 'Segoe UI', sans-serif; padding: 20px; }
+    .container { max-width: 800px; margin: 0 auto; }
+    .card { background: #1e293b; padding: 30px; border-radius: 12px; }
+    .passage { line-height: 1.8; font-size: 1.1rem; }
     .word { cursor: pointer; color: #38bdf8; border-bottom: 1px dashed #38bdf8; }
     .btn { background: #f472b6; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-bottom: 20px; }
-    .info { margin-top: 20px; padding: 15px; background: #000; border-left: 4px solid #f472b6; }
+    .info { margin-top: 20px; padding: 15px; background: #000; border-left: 4px solid #f472b6; font-size: 1rem; }
   </style>
 </head>
 <body>
@@ -24,50 +24,55 @@
 <script type="text/babel">
   const { useState } = React;
 
-  // Gerçek sözlük
   const dict = {
-    "le": "o/bu", "est": "dir", "voyage": "seyahat", "montagne": "dağ", "nature": "doğa",
-    "tranquille": "sakin", "fleur": "çiçek", "soleil": "güneş", "travaille": "çalışır",
-    "grand": "büyük", "petit": "küçük", "manger": "yemek", "ciel": "gökyüzü",
-    "oiseau": "kuş", "maison": "ev", "ami": "arkadaş", "très": "çok", "beau": "güzel"
+    "voyage": "seyahat", "montagne": "dağ", "nature": "doğa", "tranquille": "sakin",
+    "fleur": "çiçek", "soleil": "güneş", "travaille": "çalışır", "grand": "büyük",
+    "petit": "küçük", "manger": "yemek", "ciel": "gökyüzü", "oiseau": "kuş",
+    "maison": "ev", "ami": "arkadaş", "très": "çok", "beau": "güzel"
   };
 
-  // Metin blokları (Artık rastgele kelime yok, hazır anlamlı paragraflar var)
-  const textBlocks = [
-    ["Thomas fait un grand voyage dans la montagne. Il observe un bel oiseau dans le ciel bleu.", "La nature est très tranquille. Marie travaille dans une maison avec beaucoup de fleurs."],
-    ["Le soleil est très beau aujourd'hui. Mon ami veut manger dans un petit restaurant.", "C'est une expérience très enrichissante pour tout le monde dans cette ville."],
-    ["La montagne est magnifique en hiver. Les enfants jouent dans la neige blanche.", "La cuisine française est célèbre dans le monde entier pour sa qualité."]
+  const articles = [
+    {
+      title: "La vie à la campagne",
+      text: "Thomas aime passer ses journées dans la nature. Il habite dans une petite maison avec un grand jardin. Chaque matin, il observe le soleil qui se lève sur les montagnes. Il travaille beaucoup dans son potager pour avoir des légumes frais. C'est une vie simple et très tranquille pour lui. Il ne veut pas retourner à la grande ville avec tout son bruit."
+    },
+    {
+      title: "Un voyage inoubliable",
+      text: "Marie a décidé de faire un long voyage en France. Elle veut découvrir chaque région et chaque culture différente. Elle mange des plats délicieux dans les petits restaurants locaux. Elle prend beaucoup de photos du ciel bleu et des oiseaux. C'est une expérience très enrichissante qui change sa façon de voir le monde."
+    }
   ];
 
   function App() {
-    const [currentText, setCurrentText] = useState(textBlocks[0]);
-    const [selected, setSelected] = useState({ w: "", t: "" });
+    const [article, setArticle] = useState(articles[0]);
+    const [selected, setSelected] = useState({ word: "", meaning: "" });
 
-    const generate = () => {
-      const randomBlock = textBlocks[Math.floor(Math.random() * textBlocks.length)];
-      setCurrentText(randomBlock);
+    const handleWordClick = (word) => {
+      const clean = word.toLowerCase().replace(/[^a-zàâçéèêëîïôûù]/g, "");
+      setSelected({ word: clean, meaning: dict[clean] || "Sözlükte bulunamadı" });
     };
 
     return (
       <div className="container">
-        <button className="btn" onClick={generate}>YENİ ANLAMLI METİN ÜRET</button>
+        <button className="btn" onClick={() => setArticle(articles[Math.floor(Math.random() * articles.length)])}>
+          YENİ METİN ÜRET
+        </button>
+        
         <div className="card">
+          <h1>{article.title}</h1>
           <div className="passage">
-            {currentText.map((p, pIdx) => (
-              <p key={pIdx}>
-                {p.split(" ").map((w, wIdx) => {
-                  const clean = w.toLowerCase().replace(/[^a-zàâçéèêëîïôûù]/g, "");
-                  return (
-                    <span key={wIdx} className="word" onClick={() => setSelected({w, t: dict[clean] || "Sözlükte yok"})}>
-                      {w}{" "}
-                    </span>
-                  );
-                })}
-              </p>
+            {article.text.split(" ").map((w, i) => (
+              <span key={i} className="word" onClick={() => handleWordClick(w)}>
+                {w}{" "}
+              </span>
             ))}
           </div>
         </div>
-        {selected.w && <div className="info"><strong>{selected.w}</strong>: {selected.t}</div>}
+
+        {selected.word && (
+          <div className="info">
+            <strong>{selected.word}</strong>: {selected.meaning}
+          </div>
+        )}
       </div>
     );
   }
