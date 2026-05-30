@@ -2,71 +2,73 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>A2 Aşamalı Okuma Sistemi</title>
+    <title>A2 Master - 200 Kelimelik Pasajlar</title>
     <style>
-        body { font-family: sans-serif; background: #f0f2f5; padding: 20px; line-height: 1.8; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        #metin { font-size: 1.2rem; cursor: pointer; color: #334; background: #fff; padding: 10px; }
-        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
-        .btn { padding: 12px 20px; border-radius: 6px; cursor: pointer; border: none; font-weight: bold; }
-        .btn-next { background: #10b981; color: white; }
-        .btn-bank { background: #4f46e5; color: white; }
-        #sonuc { margin-top: 20px; padding: 15px; background: #eef2ff; border-left: 5px solid #4f46e5; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; color: #e2e8f0; padding: 40px; }
+        .container { max-width: 850px; margin: auto; background: #1e293b; padding: 40px; border-radius: 20px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); }
+        h2 { color: #38bdf8; margin-top: 0; }
+        #metin { font-size: 1.25rem; line-height: 1.8; cursor: pointer; color: #f1f5f9; white-space: pre-wrap; margin-bottom: 30px; }
+        .panel { display: flex; gap: 15px; border-top: 1px solid #334155; padding-top: 20px; }
+        .btn { padding: 12px 24px; border-radius: 8px; cursor: pointer; border: none; font-weight: bold; transition: 0.3s; }
+        .btn-next { background: #38bdf8; color: #0f172a; }
+        .btn-bank { background: #475569; color: white; }
+        #bilgi-kutusu { margin-top: 20px; padding: 20px; background: #0f172a; border-left: 5px solid #38bdf8; border-radius: 4px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h3 id="baslik">Pasaj 1</h3>
-    <div id="metin" onmouseup="kelimeyiIsle()">
-        </div>
+    <h2 id="baslik">Pasaj 1</h2>
+    <div id="metin" onmouseup="kelimeyiIsle()"></div>
     
-    <div id="sonuc">Kelimeye tıkla veya seç.</div>
+    <div id="bilgi-kutusu">Kelimeye tıkla veya seç, anlamı burada görünecek.</div>
     
-    <div class="btn-group">
-        <button class="btn btn-next" onclick="siradakiPasaj()">Sıradaki Paragrafı Getir</button>
-        <button class="btn btn-bank" onclick="bankayiGoster()">Kelime Bankamı Göster</button>
+    <div class="panel">
+        <button class="btn btn-next" onclick="siradakiPasaj()">Sıradaki 200 Kelimelik Pasaj</button>
+        <button class="btn btn-bank" onclick="bankayiGoster()">Kelime Bankam</button>
     </div>
 </div>
 
 <script>
-    // 2000 kelimeye kadar genişletilebilir veritabanı
+    // 2000 kelimeye genişletmeye uygun sözlük yapısı
     const sozluk = {
         "habite": "oturur/yaşar", "tranquille": "sakin", "nature": "doğa", "jardin": "bahçe",
         "travaille": "çalışır", "grand": "büyük", "légumes": "sebzeler", "frais": "taze",
         "ciel": "gökyüzü", "simple": "basit", "arbre": "ağaç", "année": "yıl", "monde": "dünya",
-        "jamais": "asla", "endroit": "yer", "heureux": "mutlu", "voyage": "seyahat", "ville": "şehir"
+        "jamais": "asla", "endroit": "yer", "heureux": "mutlu", "voyage": "seyahat", "ville": "şehir",
+        "matin": "sabah", "soleil": "güneş", "montagne": "dağ", "lire": "okumak", "livre": "kitap"
     };
 
+    // 4 paragraflık, yaklaşık 200 kelimelik bloklar
     const pasajlar = [
-        "Thomas habite dans une maison tranquille. Il aime la nature et les fleurs. Chaque matin, il travaille dans son grand jardin. Il mange des légumes frais et il regarde le ciel bleu. C'est une vie simple mais très belle.",
-        "Marie veut faire un grand voyage à travers la France. Elle habite dans une ville avec beaucoup de bruit. Elle veut voir la montagne et la nature. Elle prend son livre et elle part. C'est un voyage qui change tout pour elle.",
-        "Ils sont très heureux ici. Chaque jour est une nouvelle aventure dans la nature. La technologie moderne n'a pas de place dans son monde paisible. Il préfère la lecture et la méditation. C'est une vie riche et simple."
+        "Thomas habite dans une petite maison près de la nature. Il aime son jardin. Chaque matin, le soleil brille sur la montagne. Thomas travaille dans son potager pour avoir des légumes frais.\n\nC'est une vie simple et très tranquille pour lui. Il ne veut jamais retourner à la grande ville avec tout son bruit. Il préfère le calme de la campagne. Marie, son amie, vient souvent manger avec lui.\n\nIls parlent de leur voyage en France. C'est une belle histoire de paix et de nature. La vie est belle quand on est simple. Il lit beaucoup de livres dans son jardin.\n\nLes fleurs sont partout autour de la maison. Il observe les oiseaux qui chantent dans les arbres. Le soir, il regarde les étoiles avec son ami. Il est heureux ici.",
+        "Marie veut faire un grand voyage à travers la France. Elle habite dans une ville avec beaucoup de bruit. Elle veut voir la montagne et la nature. Elle prend son livre et elle part.\n\nElle mange des légumes frais dans des petits villages. Elle rencontre Thomas qui travaille dans son jardin. Ils deviennent amis. Marie aime la vie tranquille de la campagne.\n\nElle décide de rester ici pour toujours. C'est un voyage qui change tout pour elle. Elle apprend à travailler dans le potager. Elle aime le soleil du matin.\n\nElle lit beaucoup avec Thomas. Ils sont très heureux. C'est une vie riche et simple. Elle oublie le bruit de la ville. Elle découvre la vraie nature."
     ];
 
     let index = 0;
     let kelimeBankasi = new Set();
 
-    // İlk yükleme
     document.getElementById('metin').innerText = pasajlar[0];
 
     function siradakiPasaj() {
         index = (index + 1) % pasajlar.length;
         document.getElementById('metin').innerText = pasajlar[index];
         document.getElementById('baslik').innerText = "Pasaj " + (index + 1);
+        document.getElementById('bilgi-kutusu').innerText = "Yeni pasaj yüklendi. Kelime seçmeye devam et.";
     }
 
     function kelimeyiIsle() {
         const selection = window.getSelection().toString().trim().toLowerCase().replace(/[^a-zàâçéèêëîïôûù]/g, "");
         if (!selection) return;
 
-        const anlam = sozluk[selection] || "Bu kelime sözlükte henüz tanımlı değil.";
+        const anlam = sozluk[selection] || "Bu kelime sözlüğe henüz eklenmemiş.";
         kelimeBankasi.add(selection + " -> " + anlam);
-        document.getElementById('sonuc').innerHTML = `<strong>${selection.toUpperCase()}</strong>: ${anlam}`;
+        document.getElementById('bilgi-kutusu').innerHTML = `<strong>${selection.toUpperCase()}</strong>: ${anlam}`;
     }
 
     function bankayiGoster() {
-        alert("Öğrenilen Kelimeleriniz:\n" + Array.from(kelimeBankasi).join("\n"));
+        const liste = Array.from(kelimeBankasi).join("\n");
+        alert(liste ? "Öğrenilen Kelimeler:\n" + liste : "Henüz bir kelime seçmedin.");
     }
 </script>
 
