@@ -2,16 +2,15 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>A2 Okuma Sistemi</title>
+  <title>A2 Okuma - Yapılandırılmış Metinler</title>
   <style>
     body { background: #0f172a; color: #f1f5f9; font-family: sans-serif; padding: 20px; }
     .container { max-width: 700px; margin: 0 auto; }
     .card { background: #1e293b; padding: 25px; border-radius: 12px; }
-    .passage { line-height: 1.8; font-size: 1rem; text-align: justify; }
+    .passage { line-height: 1.8; font-size: 1rem; }
     .word { cursor: pointer; color: #38bdf8; border-bottom: 1px dashed #38bdf8; }
     .btn { background: #f472b6; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-bottom: 20px; }
     .info { margin-top: 20px; padding: 15px; background: #000; border-left: 4px solid #f472b6; }
-    p { margin-bottom: 1.5rem; }
   </style>
 </head>
 <body>
@@ -25,49 +24,41 @@
 <script type="text/babel">
   const { useState } = React;
 
-  const dictionary = {
+  // Gerçek sözlük
+  const dict = {
     "le": "o/bu", "est": "dir", "voyage": "seyahat", "montagne": "dağ", "nature": "doğa",
     "tranquille": "sakin", "fleur": "çiçek", "soleil": "güneş", "travaille": "çalışır",
     "grand": "büyük", "petit": "küçük", "manger": "yemek", "ciel": "gökyüzü",
     "oiseau": "kuş", "maison": "ev", "ami": "arkadaş", "très": "çok", "beau": "güzel"
   };
 
+  // Metin blokları (Artık rastgele kelime yok, hazır anlamlı paragraflar var)
+  const textBlocks = [
+    ["Thomas fait un grand voyage dans la montagne. Il observe un bel oiseau dans le ciel bleu.", "La nature est très tranquille. Marie travaille dans une maison avec beaucoup de fleurs."],
+    ["Le soleil est très beau aujourd'hui. Mon ami veut manger dans un petit restaurant.", "C'est une expérience très enrichissante pour tout le monde dans cette ville."],
+    ["La montagne est magnifique en hiver. Les enfants jouent dans la neige blanche.", "La cuisine française est célèbre dans le monde entier pour sa qualité."]
+  ];
+
   function App() {
-    const [paragraphs, setParagraphs] = useState([]);
+    const [currentText, setCurrentText] = useState(textBlocks[0]);
     const [selected, setSelected] = useState({ w: "", t: "" });
 
     const generate = () => {
-      const sentenceBank = [
-        "Thomas fait un grand voyage dans la montagne tranquille. ",
-        "Il observe un bel oiseau dans le ciel bleu. ",
-        "Marie travaille dans une maison avec beaucoup de fleurs. ",
-        "Le soleil est très beau et la nature est magnifique. ",
-        "Mon ami veut manger dans un petit restaurant. ",
-        "C'est une expérience très enrichissante pour tout le monde. "
-      ];
-
-      let newParagraphs = [];
-      for (let p = 0; p < 4; p++) {
-        let text = "";
-        for (let s = 0; s < 10; s++) {
-          text += sentenceBank[Math.floor(Math.random() * sentenceBank.length)];
-        }
-        newParagraphs.push(text);
-      }
-      setParagraphs(newParagraphs);
+      const randomBlock = textBlocks[Math.floor(Math.random() * textBlocks.length)];
+      setCurrentText(randomBlock);
     };
 
     return (
       <div className="container">
-        <button className="btn" onClick={generate}>YENİ PASAJ ÜRET (PARAGRAFLI)</button>
+        <button className="btn" onClick={generate}>YENİ ANLAMLI METİN ÜRET</button>
         <div className="card">
           <div className="passage">
-            {paragraphs.map((p, pIdx) => (
+            {currentText.map((p, pIdx) => (
               <p key={pIdx}>
                 {p.split(" ").map((w, wIdx) => {
-                  const clean = w.toLowerCase().replace(/[.,]/g, "");
+                  const clean = w.toLowerCase().replace(/[^a-zàâçéèêëîïôûù]/g, "");
                   return (
-                    <span key={wIdx} className="word" onClick={() => setSelected({w, t: dictionary[clean] || "Sözlükte yok"})}>
+                    <span key={wIdx} className="word" onClick={() => setSelected({w, t: dict[clean] || "Sözlükte yok"})}>
                       {w}{" "}
                     </span>
                   );
@@ -76,11 +67,7 @@
             ))}
           </div>
         </div>
-        {selected.w && (
-          <div className="info" key={Math.random()}>
-            <strong>{selected.w}</strong>: {selected.t}
-          </div>
-        )}
+        {selected.w && <div className="info"><strong>{selected.w}</strong>: {selected.t}</div>}
       </div>
     );
   }
